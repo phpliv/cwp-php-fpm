@@ -1,0 +1,77 @@
+#!/bin/bash
+# Required for servers using other lang
+LANG=en_US.UTF-8
+
+########################################################################
+#
+# CWP PHPFPM instaler for CentOS 7
+#
+########################################################################
+help() {
+  echo "Usage: $0 [OPTIONS]
+  -p, --phpfpm        Install PHP-FPM  [5.4|5.5|5.6|7.0|7.1|7.2|7.3|7.4|8.0||8.1|8.2]
+  -h, --help          Print this help
+
+  Example: sh $0 --phpfpm 7.4"
+    exit 1
+}
+
+for argument; do
+    delimiter=""
+    case "$argument" in
+        --phpfpm)               arguments="${arguments}-p " ;;
+
+        --help)                 arguments="${arguments}-h " ;;
+        *)                      [[ "${argument:0:1}" == "-" ]] || delimiter="\""
+                                arguments="${arguments}${delimiter}${argument}${delimiter} ";;
+    esac
+done
+eval set -- "$arguments"
+
+#Current PHP Version
+phpfpm=$(php -v | head -n 1 | cut -d " " -f 2 | cut -f1-2 -d".")
+
+while getopts "p:h" Oflags; do
+    case $Oflags in
+        p) phpfpm=$OPTARG ;;             # Install PHP-FPM
+        h) help ;;                       # Print help
+        *) help ;;                       # Print help 
+    esac
+done
+echo "PHPFPM ${phpfpm} Installer"
+# PHPFPM Installer
+if [ ! -z "$phpfpm" ]; then
+    CWPDLLINK="http://static.cdn-cwp.com/files/php/selector/el7/"
+    CWPDLLINK="https://raw.githubusercontent.com/phpliv/cwp-php-fpm/main/"
+    mkdir -p /usr/local/cwp/.conf/php-fpm_conf/
+
+    if [ "$phpfpm" = "5.3" ];then
+        wget -q ${CWPDLLINK}php53.conf -O /usr/local/cwp/.conf/php-fpm_conf/php53.conf
+    elif [ "$phpfpm" = "5.4" ]; then
+        wget -q ${CWPDLLINK}php54.conf -O /usr/local/cwp/.conf/php-fpm_conf/php54.conf
+    elif [ "$phpfpm" = "5.5" ]; then
+        wget -q ${CWPDLLINK}php55.conf -O /usr/local/cwp/.conf/php-fpm_conf/php55.conf
+    elif [ "$phpfpm" = "5.6" ]; then
+        wget -q ${CWPDLLINK}php56.conf -O /usr/local/cwp/.conf/php-fpm_conf/php56.conf
+    elif [ "$phpfpm" = "7.0" ]; then
+        wget -q ${CWPDLLINK}php70.conf -O /usr/local/cwp/.conf/php-fpm_conf/php70.conf
+    elif [ "$phpfpm" = "7.1" ]; then
+        wget -q ${CWPDLLINK}php71.conf -O /usr/local/cwp/.conf/php-fpm_conf/php71.conf
+    elif [ "$phpfpm" = "7.2" ]; then
+        wget -q ${CWPDLLINK}php72.conf -O /usr/local/cwp/.conf/php-fpm_conf/php72.conf
+    elif [ "$phpfpm" = "7.3" ]; then
+        wget -q ${CWPDLLINK}php73.conf -O /usr/local/cwp/.conf/php-fpm_conf/php73.conf
+    elif [ "$phpfpm" = "7.4" ]; then
+        wget -q ${CWPDLLINK}php74.conf -O /usr/local/cwp/.conf/php-fpm_conf/php74.conf
+    elif [ "$phpfpm" = "8.0" ]; then
+        wget -q ${CWPDLLINK}php80.conf -O /usr/local/cwp/.conf/php-fpm_conf/php80.conf
+    elif [ "$phpfpm" = "8.1" ]; then
+        wget -q ${CWPDLLINK}php81.conf -O /usr/local/cwp/.conf/php-fpm_conf/php81.conf
+    elif [ "$phpfpm" = "8.2" ]; then
+        wget -q ${CWPDLLINK}php82.conf -O /usr/local/cwp/.conf/php-fpm_conf/php82.conf
+    fi
+    wget -q ${CWPDLLINK}php-fpm-${phpfpm}.sh -O /usr/local/src/php-fpm-${phpfpm}.sh
+    wget -q ${CWPDLLINK}php-build.sh -O /usr/local/src/php-build.sh
+    sed -i "s|CONFIGURE_VERSIONS_TO_BUILD|sh /usr/local/src/php-fpm-${phpfpm}.sh;|g" /usr/local/src/php-build.sh
+    sh /usr/local/src/php-build.sh 2>&1 |tee /var/log/php-selector-rebuild.log
+fi
