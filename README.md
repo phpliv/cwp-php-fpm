@@ -1,4 +1,4 @@
-# CWPControl Free Version Install php-fpm
+# CWPControl 7 Free Version Install php-fpm
 
 <img src="https://github.com/phpliv/cwp-php-fpm/blob/main/old.png?raw=true" width="100%"> 
 <div align="center"><b>↓↓↓↓↓↓↓</b></div>
